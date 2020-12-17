@@ -1,0 +1,183 @@
+\documentclass[english]{article}
+
+%% Packages pull in extra commands:
+%% http://en.wikibooks.org/wiki/LaTeX/Packages
+
+\usepackage{hyperref}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{bbm}
+\usepackage{xspace}
+\DeclareMathOperator*{\argmax}{argmax}
+
+% New commands serve as shorthand for frequently used command combinations.
+\newcommand{\ind}[1]{\mathbf{1}\left(#1\right)}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\E}{\mathbf{E}}
+\newcommand{\MATLAB}{\textsc{Matlab}\xspace}
+
+\title{CIS 520, Machine Learning, Fall 2018: Assignment 3}
+\author{Wentao He}
+
+\begin{document}
+\maketitle
+
+{\normalsize \noindent Collaborators: \underline{N/A}} \\
+
+\section {Na\"ive Bayes as a Linear Classifier}
+\begin{enumerate}
+  
+  \item 
+  Based on the question, since we are assuming that all the attributes of each instance \textbf{x} are conditionally independent given $y$, we know that:$\mathbf{Pr}(\mathbf{x}|y=1)=\prod\limits_{i=1}^n\mathbf{Pr}(x_i|y=1)$, so that 
+  \[
+  \mathbf{Pr}(x_i|y=1)=\begin{cases}
+               \alpha_i &\text{ if } x_i=1\\
+               (1-\alpha_i) &\text{ if } x_i=0.\\
+            \end{cases}
+\]
+  Therefore we know that the conditional probability of \textbf{x} given y can be written as $\mathbf{Pr}(\mathbf{x}|y=1)=\prod\limits_{i=1}^n \alpha_i^{x_i}\cdot(1-\alpha_i)^{(1-x_i)}$, since $\alpha_i^{x_i}\cdot(1-\alpha_i)^{(1-x_i)}$ is just another way to write the aforementioned equations in the bracket. The same set of equations can be written for $y=-1$. Therefore the conditional probability of \textbf{x} given y can also be written as $\mathbf{Pr}(\mathbf{x}|y=-1)=\prod\limits_{i=1}^n \beta_i^{x_i}\cdot(1-\beta_i)^{(1-x_i)}$.\\
+  
+  \item 
+  \textbf{The maximum likelihood estimates (MLE) of $p$}:\\\\
+  Given data $D=\{(\mathbf{x_1},y_1),\cdots,(\mathbf{x_m},y_m)\}$, the log-likelihood function $L$ of $p$ can be written as $L(D;p)=C_1 + \sum\limits_{i=1}^m\dfrac{1+y_i}{2}\cdot \log(p) + \dfrac{1-y_i}{2} \cdot \log(1-p)$, and the term $C_1$ only depends on $\alpha'$s and $\beta'$s. From the above equation, the MLE of $\hat{p}$ can be written as $\hat{p} = \argmax_p L(D;p)$. The derivative of $L(D;p)$ with respect to $p$ can be written as $\dfrac{dL(D;p)}{dp}=\sum\limits_{i=1}^m \dfrac{1+y_i}{2p}-\dfrac{1-y_i}{2(1-p)}$. When this derivative equals 0,\\ $\boxed{\hat{p}=\dfrac{1}{m}\sum\limits_{i=1}^m \dfrac{1+y_i}{2}=\dfrac{\text{number of positive data points in D}}{m}}$.\\\\
+  \textbf{The maximum likelihood estimates (MLE) of $\alpha_i$}:\\\\
+  Given data $D=\{(\mathbf{x_1},y_1),\cdots,(\mathbf{x_m},y_m)\}$, the log-likelihood function $L$ of $\alpha_i$ can be written as $L(D;\alpha_i)=C_2 + \sum\limits_{j:y_j=1} x_{ji} \cdot \log(a_i)+(1-x_{ji}) \cdot \log(1-\alpha_i)$, and the term $C_2$ only depends on $p$, $\beta'$s, and $\alpha_{i'}$ when $i' \neq i$. The derivative of $L(D;\alpha_i)$ with respect to $\alpha_i$ can be written as $\dfrac{dL(D;\alpha_i)}{d\alpha_i}=\sum\limits_{j:y_j=1} \dfrac{x_{ji}}{\alpha_i} - \dfrac{1-x_{ji}}{1-\alpha_i}$. When this derivative equals 0,\\ $\boxed{\hat{\alpha_i}=\dfrac{\sum\limits_{j:y_j=1} x_{ji}}{\sum\limits_{j:y_j=1} 1}=\dfrac{\text{number of positive data points in D where the i-th component equals to 1}}{\text{number of positive data points in D}}}$.\\\\
+  \textbf{The maximum likelihood estimates (MLE) of $\beta_i$}:\\\\
+  Similar to the above derivation of the maximum likelihood estimates (MLE) of $\alpha_i$,\\ $\boxed{\hat{\beta_i}=\dfrac{\sum\limits_{j:y_j=-1} x_{ji}}{\sum\limits_{j:y_j=-1} 1}=\dfrac{\text{number of negative data points in D where the i-th component equals to 1}}{\text{number of negative data points in D}}}$.\\\\
+
+  \item Using the proposed equation, we know that
+  \[
+  h(\mathbf{x}) =\begin{cases}
+  1 &\text{ when } \hat{\mathbf{Pr}}(1|x)>\hat{\mathbf{Pr}}(-1|x)\\
+  -1 &\text{ when otherwise}.\\
+  \end{cases}
+\]
+so that \[
+  h(\mathbf{x}) = \argmax_{y\in\{\pm1\}}\hat{\mathbf{Pr}}(y|\mathbf{x}) = \begin{cases}
+  1 &\text{ when } \hat{\mathbf{Pr}}(1|x)>\hat{\mathbf{Pr}}(-1|x)\\
+  -1 &\text{ when otherwise}.\\
+  \end{cases}
+\]
+
+  \item Using Bayes rule, we get\\
+  \begin{align*}
+  h(x) &\; = \text{sign}(\dfrac{\hat{\mathbf{Pr}}(1)\cdot\hat{\mathbf{Pr}}(\mathbf{x}|1)}{\hat{\mathbf{Pr}}(\mathbf{x})}-\dfrac{\hat{\mathbf{Pr}}(-1)\cdot\hat{\mathbf{Pr}}(\mathbf{x}|-1)}{\hat{\mathbf{Pr}}(\mathbf{x})})\\
+  &\; = \hat{\mathbf{Pr}}(1)\cdot\hat{\mathbf{Pr}}(\mathbf{x}|1) - \hat{\mathbf{Pr}}(-1)\cdot\hat{\mathbf{Pr}}(\mathbf{x}|-1)\\
+  &\; = \text{sign}(\log(\hat{\mathbf{Pr}}(1)\cdot\hat{\mathbf{Pr}}(\mathbf{x}|1)) - \log(\hat{\mathbf{Pr}}(-1)\cdot\hat{\mathbf{Pr}}(\mathbf{x}|-1)))\\
+  &\; = \text{sign}(\log(\hat{p})+\sum\limits_{i=1}^n(x_i\cdot\log(\hat{\alpha_i})+(1-x_i)\cdot\log(1-\hat{\alpha_i}))-\\
+  &\;\quad \log(1-\hat{p})-\sum\limits_{i=1}^n(x_i\cdot\log(\hat{\beta_i})+(1-x_i)\cdot\log(1-\beta_i)))\\
+  &\;= \text{sign}(\sum\limits_{i=1}^n x_i \log(\dfrac{\hat{\alpha_i}\cdot(1-\hat{\beta_i})}{\hat{\beta_i}\cdot(1-\hat{\alpha_i})})+\sum\limits_{i=1}^n\log\dfrac{1-\hat{\alpha_i}}{1-\hat{\beta_i}}+\log\dfrac{\hat{p}}{1-\hat{p}})\\
+  &\; = \text{sign}(\mathbf{w}^\top\mathbf{x}+b),
+  \end{align*}
+  so that we get\\
+  \begin{align*}
+  w_i = &\;\boxed{\log\dfrac{\hat{\alpha_i}\cdot(1-\hat{\beta_i})}{\hat{\beta_i}\cdot(1-\hat{\alpha_i})}}\\
+  b = &\; \boxed{\log\dfrac{\hat{p}}{1-\hat{p}}+\sum\limits_{i=1}^n\log\dfrac{1-\hat{\alpha_i}}{1-\hat{\beta_i}}}.
+  \end{align*}
+\end{enumerate}
+\clearpage
+\section{Multiclass Logistic Regression}
+\begin{enumerate}
+    \item The likelihood function can be written as\\
+    \begin{align*}
+     l(\mathbf{w}_1,\cdots,\mathbf{w}_C)=&\;\prod\limits_{m=1}^M\mathbf{P}(Y_m=y_m|\mathbf{X},\mathbf{w})\\
+     =&\; \prod\limits_{m=1}^M \prod\limits_{j=1}^C \mathbf{P}(Y_m=j|\mathbf{X},\mathbf{w})^{\mathbbm{I}_{mj}}\\
+     =&\; \prod\limits_{m=1}^M \prod\limits_{j=1}^C (\dfrac{\exp\{{\mathbf{w}_j^T}\mathbf{x}_m\}}{\sum\limits_{k=1}^C\exp\{{\mathbf{w}_k^T}\mathbf{x}_m\}})^{\mathbbm{I}_{mj}}\\
+     \end{align*}
+     Here $\mathbbm{I}_{mj}$ equals 1 if the $m^{th}$ data point belongs to class $j$, and equals 0 if the $m^{th}$ data point does not belong to class $j$. $Y_m$ is a random variable representing label of the $m_{th}$ data point, and $y_m$ is the label of the $m_{th}$ data point. If we take the $\log$ and add the L2 regularization term, the above equation becomes $\boxed{L(\mathbf{w}_1,\cdots,\mathbf{w}_C)=\sum\limits_{m=1}^M \sum\limits_{j=1}^C \mathbbm{I}_{mj}[\mathbf{w}_j^T\mathbf{x}_m-\ln\sum\limits_{k=1}^C\exp\{{\mathbf{w}_k^T\mathbf{x}_m\}}]-\dfrac{\lambda}{2}||\mathbf{w}_j||^2}.$
+
+     \item The expression for the $j_{th}$ index is\\
+     \begin{align*}
+     \dfrac{\partial(\mathbf{w}_1,\cdots,\mathbf{w}_C)}{\partial\mathbf{w}_j)} = &\; \sum\limits_{m=1}^M[\mathbbm{I}_{mj}\mathbf{x}_m - \dfrac{\exp\{{\mathbf{w}_j^T}\mathbf{x}_m\}}{\sum\limits_{k=1}^C\exp\{{\mathbf{w}_k^T}\mathbf{x}_m\}}]-\lambda\mathbf{w}_j\\
+     =&\;\boxed{\sum\limits_{m=1}^M[\mathbbm{I}_{mj}-\mathbf{P}(Y_m=j|\mathbf{X},\mathbf{w})]\mathbf{x}_m-\lambda\mathbf{w}_j}.\\
+     \end{align*}
+
+     \item The update equation for weight vector $\mathbf{w}_j$ is $\boxed{\mathbf{w}_j+\eta\sum\limits_{m=1}^M[\mathbbm{I}_{mj}-\mathbf{P}(Y_m=j|\mathbf{X},\mathbf{w})]\mathbf{x}_m-\eta\lambda\mathbf{w}_j}.$
+
+     \item The sequence of consecutive weight vectors will converge becasue the loss function itself is concave. It will converge when the loss function reaches its global maximum.\\
+\end{enumerate}
+\clearpage
+\section{Feature Selection}
+\begin{enumerate}
+  \item The MLE estimate can be found by\\
+  \begin{align*}
+  \dfrac{\partial(Y-Xw)^T(Y-Xw)}{\partial w} = &\; -X^T(Y-X_w) = 0\\
+  w = &\; (X^TX)^{-1}X^TY\\
+  w = &\; \boxed{[0.9484,-0.8811,4.4696]}
+  \end{align*}
+  \item $\hat{w}$ = \\
+  \begin{align*}
+  w = &\; (X^TX+\lambda I)^{-1}X^TY\\
+  w = &\; \boxed{[0.9029, -0.8715,4.3416]}
+  \end{align*}
+
+  \item With \textit{fminsearch} in \MATLAB $w = \boxed{[0.9231,-0.8673, 4.4566]}$
+
+  \item After solving all 8 combinatorial cases, $w = \boxed{[0.9484,-0.8811,4.4696]}$
+
+  \item The relation between the estimates of w in the four cases\\\\
+  In the first case, the maximum likelihood estimates (MLE) aims to find the minimum value for the residual error without considering any assumptions or beliefs regarding $w$. However, with MLE being a consistent estimator, if the amount of data is small, the variance can be high. Typically MLE estimation is unbiased but has high variance. In the second case, the $L_2$ norm is an assumption that $w$ is following a Gaussian distribution that has mean 0 and variance $\sigma^2$. With $L_2$ norm, if $\lambda$ is a good value, it can help to avoid overfitting. In the ideal situation, irrelevant input should have weights set exactly to 0. In the third case, the $L_1$ norm is being penalized by decreasing $w_1$, $w_2$ and $w_3$ gradually down to zero. Those three parameters will be zeroed out if they become negative. $L_1$ norm can also be more computationally expensive than $L_2$ norm and Lasso is an efficient way of performing the $L_1$ regularization. In the fourth case, the $L_0$ norm is biased towards providing sparse solutions. 
+
+  \item When $\lambda > 0$, we make a trade-off between minimizing the sum of squared errors and the magnitude of $\hat{w}$. In the following questions, we will explore this trade-off further. For the following, use the same data from data.mat.
+  \begin{enumerate}
+    \item The ratio of $||\hat{w}_{MLE}||_2^2/||Y-X\hat{w}_{MLE}||_2^2=21.6530/(1.9871e+03)=\boxed{0.0109}$
+    \item Doubling the number of training samples
+    \begin{enumerate}
+      \item When N is doubled, $||Y-X\hat{w}_{MLE}||_2^2$ will also be doubled. When $N>>P$, this sum of squared erros depend directly on the number of training samples.
+      \item When you double the number of training samples, $||\hat{w}_{MLE}||_2^2$ should barely change. $||\hat{w}_{MLE}||_2^2$ does not depend directly on the number of training samples.
+    \end{enumerate}
+    \item When $\boxed{\lambda = 3}$, $0.8<||\hat{w}||_2^2/||\hat{w}_{MLE}||_2^2<0.9$.
+    \item When $\boxed{\lambda = 19}$, $0.4<||\hat{w}||_2^2/||\hat{w}_{MLE}||_2^2<0.5$.
+  \end{enumerate}
+  
+  \end{enumerate}
+  \clearpage
+  \section{MDL on a toy dataset}
+  \begin{enumerate}
+    \item Estimate the three linear regressions
+    \begin{enumerate}
+      \item The sum of square error
+      \begin{enumerate}
+        \item $Err_1$ = \boxed{460.0579}.
+        \item $Err_2$ = \boxed{300.6201}.
+        \item $Err_3$ = \boxed{300.5071}.
+      \end{enumerate}
+      \item 2 times the estimated bits to code the residual
+      \begin{enumerate}
+        \item $ERR\_bits_1$ = \boxed{182.1230}.
+        \item $ERR\_bits_2$ = \boxed{142.8351}.
+        \item $ERR\_bits_3$ = \boxed{142.8003}.
+      \end{enumerate}
+      \item 2 times the estimated bits to code each residual plus model under AIC
+      \begin{enumerate}
+        \item $AIC\_bits_1$ = \boxed{184.1230}.
+        \item $AIC\_bits_2$ = \boxed{146.8351}.
+        \item $AIC\_bits_3$ = \boxed{148.8003}.
+      \end{enumerate}
+      \item 2 times the estimated bits to code each residual plus model under BIC
+      \begin{enumerate}
+        \item $BIC\_bits_1$ = \boxed{188.1230}.
+        \item $BIC\_bits_2$ = \boxed{154.8351}.
+        \item $BIC\_bits_3$ = \boxed{160.8003}.
+      \end{enumerate}
+    \end{enumerate}
+    \item Which model has the smallest minimum description length?
+    \begin{enumerate}
+      \item for AIC: \boxed{\text{Model 2}}.
+      \item for BIC: \boxed{\text{Model 2}}.
+    \end{enumerate}
+    \item Test errors:
+    \begin{enumerate}
+      \item Model 1 test error = \boxed{640.3078}.
+      \item Model 2 test error = \boxed{420.1459}.
+      \item Model 3 test error = \boxed{422.1606}.
+    \end{enumerate}
+  \end{enumerate}
+\end{document}

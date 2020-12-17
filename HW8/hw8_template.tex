@@ -1,0 +1,156 @@
+\documentclass[english]{article}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.10}
+\usetikzlibrary{shapes.geometric,arrows,fit,matrix,positioning}
+\tikzset
+{
+    treenode/.style = {circle, draw=black, align=center, minimum size=1cm},
+    subtree/.style  = {isosceles triangle, draw=black, align=center, minimum height=0.5cm, minimum width=1cm, shape border rotate=90, anchor=north}
+}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{latexsym}
+\usepackage{xspace}
+\usepackage{pdflscape}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks]{hyperref}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{multirow} 
+\usetikzlibrary{shapes}
+\usepackage{algorithm2e}
+\usepackage{listings}
+\usepackage{diagbox}
+
+%%%% CUSTOM MATH GOES HERE
+\newcommand{\ind}[1]{\mathbf{1}\left(#1\right)}
+\renewcommand{\Pr}{\mathbf{Pr}\xspace}
+\newcommand{\Bern}{\textsf{Bernoulli}\xspace}
+\newcommand{\sign}{\textsf{sign}}
+\newcommand{\E}{\mathbf{E}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bl}{\mathbf{\ell}}
+\newcommand{\vc}[1]{\mathbf{#1}}
+\newcommand{\Hypo}{\mathcal{H}}
+\newcommand{\XX}{\mathcal{X}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcolumntype{M}{>{$\vcenter\bgroup\hbox\bgroup}c<{\egroup\egroup$}}
+\newcolumntype{x}[1]{>{\centering\arraybackslash}m{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{CIS 520, Machine Learning, Fall 2018: Assignment 8\\}
+\date{}
+\author{Wentao He (wentaoh)}
+
+\begin{document}
+\maketitle
+{\normalsize Collaborator:\underline{N/A}}
+
+
+\section{Active Learning}
+\subsection{Part 1}
+\begin{enumerate}
+    \item \boxed{x_1}. The final classifier would be evaluated in terms of 0-1 loss, and the loss function is:\\ Expected Loss = $y_i(\hat{\eta}(x_i)C_{TP} + (1 - \hat{\eta}(x_i))C_{TN} + (1 - y_i)(\hat{\eta}(xi)C_{FP} + (1 - \hat{\eta}(x_i))C_{FN})$. Therefore:\\
+    Expected Loss $(x_1) = C_{TP} \times \hat{\eta}(x_i)+C_{FP} \times(1-\hat{\eta}(x_i)) =0\times 0.55+1\times 0.45 = 0.45$\\
+    Expected Loss $(x_2) = C_{TP} \times \hat{\eta}(x_i)+C_{FP} \times(1-\hat{\eta}(x_i)) =0\times 0.95+1\times 0.05 = 0.05$\\
+    Expected Loss $(x_3) = C_{TN} \times \hat{\eta}(x_i)+C_{FN} \times(1-\hat{\eta}(x_i)) =1\times 0.3+0\times 0.7 = 0.3$\\
+    And we know from the calculation that the label of $x_1$ will reduce the loss the most.
+    \item \boxed{x_2}. Similar to question 1, we get:\\
+    Expected Loss $(x_1) = C_{TP} \times \hat{\eta}(x_i)+C_{FP} \times(1-\hat{\eta}(x_i)) =0\times 0.55+0.8\times 0.45 = 0.036$\\
+    Expected Loss $(x_2) = C_{TP} \times \hat{\eta}(x_i)+C_{FP} \times(1-\hat{\eta}(x_i)) =0\times 0.95+0.8\times 0.05 = 0.04$\\
+    Expected Loss $(x_3) = C_{TN} \times \hat{\eta}(x_i)+C_{FN} \times(1-\hat{\eta}(x_i)) =0.2\times 0.3+0\times 0.7 = 0.06$\\
+    And we know from the calculation that the label of $x_2$ will reduce the loss the most.
+\end{enumerate}
+
+\subsection{Part 2}
+\begin{enumerate}
+    \item \boxed{x_2}. The classifier would pick the instance that has the least confidence in its most likely label based on the least confidence strategy. $x_2$ has the lowest confidence in its most likely label, which is 0.45.
+    \item \boxed{x_3}. The classifier would pick the instance that has the smallest difference between the first and second labels that are the most probable based on the margin sampling strategy. $x_3$ has the smallest difference.
+\end{enumerate}
+
+\clearpage
+\section{Reinforcement Learning}
+\begin{enumerate}
+    \item MDP
+    \begin{enumerate}
+    \item $S = [0, 1, 2, 3, 4]$
+    \item $A = [f, b]$
+    \item For p:\\
+    $p(1|0,f) = 0.9 \quad p(0|0,f) = 0.1 \quad p(1|0, b) = 0.1 \quad p(0|0, b) = 0.9$\\
+    $p(0|1,f) = 0.1 \quad p(2|1,f) = 0.9 \quad p(0|1, b) = 0.9 \quad p(2|1, b) = 0.1$\\
+    $p(0|2,f) = 0.1 \quad p(3|2,f) = 0.9 \quad p(0|2, b) = 0.9 \quad p(3|2, b) = 0.1$\\
+    $p(0|3,f) = 0.1 \quad p(4|3,f) = 0.9 \quad p(0|3, b) = 0.9 \quad p(4|3, b) = 0.1$\\
+    $p(0|4,f) = 0.1 \quad p(4|4,f) = 0.9 \quad p(0|4, b) = 0.9 \quad p(4|4, b) = 0.1$\\
+    \item For r:\\
+    $r(0,f,1) = 0 \quad r(0,f,0) = 2 \quad r(0,b,1) = 0 \quad r(0,b,0) = 2$\\
+    $r(0,f,1) = 0 \quad r(0,f,0) = 2 \quad r(0,b,1) = 0 \quad r(0,b,0) = 2$\\
+    $r(2,f,0) = 2 \quad r(2,f,3) = 0 \quad r(2,b,0) = 2 \quad r(2,b,3) = 0$\\
+    $r(3,f,0) = 2 \quad r(3,f,4) = 0 \quad r(3,b,0) = 2 \quad r(3,b,4) = 0$\\
+    $r(4,f,0) = 2 \quad r(4, f, 4) = 10 \quad r(4,b,0) = 2 \quad r(4, b, 4) = 10$
+    \end{enumerate}
+    \item Optimal State-Value Function\\
+    $V^*(1) = 40.74\quad  V^*(2) = 45.53\quad  V^*(3) = 51.43\quad  V ^*(4) = 58.72\quad  V^*(5) = 67.72;$
+    \item Optimal Deterministic Policy \\
+    $\pi^*(s_i) = 1,\forall i \in [1,2,3,4,5]$
+\end{enumerate}
+\clearpage
+
+\section{Semi-Supervised Learning}
+\begin{enumerate}
+    \item Initial Maximum Likelihood Parameters\\
+    $\hat{\theta}_{+1}^0 = \frac{1}{2}$ \quad $\hat{\theta}_{1|+1}^0 = \frac{3}{4}$ \quad $\hat{\theta}_{2|+1}^0 = \frac{1}{2}$ \quad $\hat{\theta}_{1|-1}^0 = \frac{1}{4}$ \quad $\hat{\theta}_{2|-1}^0 = \frac{1}{2}$
+    \item E Step
+    \begin{align*}
+    q_0(+1|x = (1,1)) = &\; P(Y = +1|x = (1,1);\theta^0)\\
+    = &\; \dfrac{\hat{\theta}_{+1}^0 \times \hat{\theta}_{1|+1}^0 \times \hat{\theta}_{2|+1}^0}{\hat{\theta}_{+1}^0 \times \hat{\theta}_{1|+1}^0 \times \hat{\theta}_{2|+1}^0 + \hat{\theta}_{-1}^0 \times \hat{\theta}_{1|-1}^0 \times \hat{\theta}_{2|-1}^0}\\
+    = &\; \dfrac{0.5*0.75*0.5}{0.5*0.75*0.5+0.5*0.25*0.5}\\
+    = &\; \dfrac{3}{4}\\
+    q_0(+1|x = (0,0)) = &\; P(Y = +1|x = (0,0);\theta^0)\\
+    = &\; \dfrac{\hat{\theta}_{+1}^0 \times (1-\hat{\theta}_{1|+1}^0) \times (1-\hat{\theta}_{2|+1}^0)}{\hat{\theta}_{+1}^0 \times (1-\hat{\theta}_{1|+1}^0) \times (1-\hat{\theta}_{2|+1}^0) + \hat{\theta}_{-1}^0 \times (1-\hat{\theta}_{1|-1}^0) \times (1-\hat{\theta}_{2|-1}^0)}\\
+    = &\; \dfrac{0.5*0.25*0.5}{0.5*0.25*0.5 + 0.5*0.25*0.5}\\
+    = &\; \dfrac{1}{4}
+    \end{align*}
+    \item M Step
+    \begin{align*}
+    \hat{\theta}_{+1}^0 = &\; \dfrac{1}{12}(\sum_{i=1}^{m_L} \mathbf{1}(y_i = +1) +\sum_{i=m_L+1}^{m_L+m_U} q^0(+1|x_i))\\
+    = &\; \dfrac{1}{12} \times (4+2 \times 0.75 + 2 \times 0.25)\\
+    = &\; \dfrac{1}{2}\\
+    \hat{\theta}_{1|+1}^0 = &\; \dfrac{\sum_{i=1}^{m_L}\mathbf{1}(y_i=1, x_{i,1}=1) + \sum_{i = m_L+1}^{m_L+m_U}q^1(+1|x_i)\mathbf{1}(x_{i,1}=1)}{\sum_{i=1}^{m_L}\mathbf{1}(y_i=+1)+\sum_{i = m_L+1}^{m_L+m_U}q^1(+1|x_i)}\\
+    = &\; \dfrac{3 + 2 \times 0.75}{4 + 2 \times 0.75 + 2 \times 0.25}\\
+    = &\; \dfrac{3}{4}\\
+    \text{Similarly, }\\
+    \hat{\theta}_{2|+1}^0 = &\; \dfrac{2+2\times 0.75}{4+2\times 0.75 + 2\times 0.25}\\
+    = &\; \dfrac{7}{12}\\
+    \hat{\theta}_{1|-1}^0 = &\; \dfrac{1+2\times 0.25}{4+2\times 0.25 + 2 \times 0.75}\\
+    = &\; \dfrac{1}{4}\\
+    \hat{\theta}_{2|-1}^0 = &\; \dfrac{2+2\times 0.25}{4+2\times0.25+2\times0.75}\\
+    = &\; \dfrac{5}{12}
+    \end{align*}
+    \item Log-Likelihood
+    \begin{align*}
+    \ln p(S; \hat{\theta}^t) = &\; 2\ln(\hat{\theta}_{+1}^t \hat{\theta}_{1|+1}^t \hat{\theta}_{2|+1}^t) + \ln(\hat{\theta}_{+1}^t \hat{\theta}_{1|+1}^t (1-\hat{\theta}_{2|+1}^t)) + \ln(\hat{\theta}_{+1}^t (1-\hat{\theta}_{1|+1}^t) (1-\hat{\theta}_{2|+1}^t))\\
+    &\; + \ln(\hat{\theta}_{-1}^t \hat{\theta}_{1|-1}^t (1-\hat{\theta}_{2|-1}^t)) + \ln(\hat{\theta}_{-1}^t (1-\hat{\theta}_{1|-1}^t) \hat{\theta}_{2|-1}^t) + 2\ln(\hat{\theta}_{-1}^t (1-\hat{\theta}_{1|-1}^t) (1-\hat{\theta}_{2|-1}^t))\\
+    &\; + 2\ln(\hat{\theta}_{+1}^t \hat{\theta}_{1|+1}^t \hat{\theta}_{2|+1}^t + \hat{\theta}_{-1}^t \hat{\theta}_{1|-1}^t \hat{\theta}_{2|-1}^t)\\
+    &\; + 2\ln(\hat{\theta}_{+1}^t (1-\hat{\theta}_{1|+1}^t) (1-\hat{\theta}_{2|+1}^t) + \hat{\theta}_{-1}^t (1-\hat{\theta}_{2|-1}^t) (1-\hat{\theta}_{2|-1}^t))\\
+    \end{align*}
+\end{enumerate}
+
+
+\end{document}
